@@ -1,12 +1,12 @@
 name: meme-research
 title: meme-research
 username:
-account: abchen
+account: hellachen
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 246465
-bundleId: 1125215
-url: https://abchen.shinyapps.io/meme-research/
-when: 1512859473.12763
+appId: 246489
+bundleId: 1124379
+url: https://hellachen.shinyapps.io/meme-research/
+when: 1512800451.0866
 asMultiple: FALSE
 asStatic: FALSE
