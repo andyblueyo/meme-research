@@ -107,18 +107,35 @@ server <- function(input, output) {
       add_trace(x = ~num_angrys, name = "angry") %>% 
       add_trace(x = ~num_hahas, name = "hahas") %>% 
       add_trace(x = ~num_likes, name = "like") %>% 
-      add_trace(x = ~num_sads, name = "sad")
+      add_trace(x = ~num_sads, name = "sad") %>% 
+      layout(title = paste("Memes from", input$memeFile)) 
   })
   
   output$histPlot <- renderPlotly({
+    x <- list(
+      title = paste(input$histCount, " "),
+      tickangle = 45,
+      zeroline = FALSE
+    )
+    y <- list(
+      title = paste("Number of Frequncy"),
+      zeroline = FALSE
+    )
+    m <- list(
+      b = 160,
+      t = 50
+    )
+    
     memeData <- get(input$memeFile) 
     memeData$status_published <- as.Date(memeData$status_published, "%Y-%m-%d")
-    plot_ly(memeData, x = ~get(input$histCount), type = "histogram")
+    plot_ly(memeData, x = ~get(input$histCount), type = "histogram") %>% 
+      layout(xaxis = x, yaxis = y, title = paste("Memes from", input$memeFile), margin = m) 
   })
 }
 
 ui <- fluidPage(
   titlePanel("Meme Research"),
+  h3("Data from Facebook groups were last scrapped on 12-9-2017."),
   sidebarLayout(
     sidebarPanel(
       uiOutput("tabUi")
