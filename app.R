@@ -5,13 +5,29 @@ library(shiny)
 
 uwMemes <- read.csv("data/uwmemesboundlessteens_facebook_statuses.csv", stringsAsFactors = FALSE)
 ucMemes <- read.csv("data/ucberkeleymemes_facebook_statuses.csv", stringsAsFactors = FALSE)
-ucMemes <- head(ucMemes)
+
 
 server <- function(input, output) {
 
+
   output$memePlot <- renderPlotly({
+    x <- list(
+      title = paste(input$memeXvar, " "),
+      tickangle = 45,
+      zeroline = FALSE
+    )
+    y <- list(
+      title = paste(input$memeYvar, " "),
+      zeroline = FALSE
+    )
+    m <- list(
+      b = 160,
+      t = 50
+    )
     
-    plot_ly(get(input$memeFile), x = ~get(input$memeXvar), y = ~get(input$memeYvar), type = "scatter", mode = "markers")
+    plot_ly(get(input$memeFile), x = ~get(input$memeXvar), y = ~get(input$memeYvar), type = "scatter", mode = "markers") %>% 
+      layout(xaxis = x, yaxis = y, title = paste("Memes from ", input$memeFile), margin = m)
+    
   })
 
 
@@ -23,7 +39,7 @@ ui <- fluidPage(
       selectInput("memeFile", label = ("Select facebook meme group"), 
                   choices = list("UW Memes" = "uwMemes", "UC Memes" = "ucMemes")),
       sliderInput("memeReactionSlide", label = ("Range of X Values:"), min = 0, 
-                  max = 3000, value = 80),
+                  max = 3000, value = 800),
       selectInput("memeXvar", label = ("Select X Variable:"), 
                   choices = list("Date" = 'status_published', "Number of Reactions" = 'num_reactions', "Number of Comments" = 'num_comments',
                                  "Number of Shares" = 'num_shares', "Number of Likes" = 'num_likes', "Number of Loves" = 'num_loves', "Number of Wows" = 'num_wows',
