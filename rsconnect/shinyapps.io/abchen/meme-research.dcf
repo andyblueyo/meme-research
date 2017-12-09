@@ -5,8 +5,8 @@ account: abchen
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 246465
-bundleId: 1124257
+bundleId: 1124297
 url: https://abchen.shinyapps.io/meme-research/
-when: 1512789766.46114
+when: 1512792122.24742
 asMultiple: FALSE
 asStatic: FALSE
