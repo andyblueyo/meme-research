@@ -128,7 +128,8 @@ server <- function(input, output) {
     
     memeData <- get(input$memeFile) 
     memeData$status_published <- as.Date(memeData$status_published, "%Y-%m-%d")
-    plot_ly(memeData, x = ~get(input$histCount), type = "histogram") %>% 
+    memeData2 <- memeData %>% group_by_(input$histCount) %>% summarise(total = n())
+    plot_ly(memeData2, x = ~get(input$histCount), y = ~total, type = "bar") %>% 
       layout(xaxis = x, yaxis = y, title = paste("Memes from", input$memeFile), margin = m) 
   })
 }
