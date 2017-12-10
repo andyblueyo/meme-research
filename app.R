@@ -25,7 +25,7 @@ addHoverBehavior <- "function(el, x){
 el.on('plotly_hover', function(data){
 var infotext = data.points.map(function(d){
 console.log(d)
-return (' type: '+d.data.stype[d.pointNumber] + ' Author: '+d.data.sauth[d.pointNumber]+' Message: '+d.data.smsg[d.pointNumber]+
+return (' Author: '+d.data.sauth[d.pointNumber]+' Message: '+d.data.smsg[d.pointNumber]+
 ' Perma Link: '+ d.data.sperma[d.pointNumber]);
 });
 console.log(infotext)
@@ -93,7 +93,7 @@ server <- function(input, output) {
       t = 50
     )
     
-    p <- plot_ly(memeData, x = ~get(input$memeXvar), y = ~get(input$memeYvar), type = "scatter", mode = "markers", 
+    p <- plot_ly(memeData, x = ~get(input$memeXvar), y = ~get(input$memeYvar), color = ~status_type, type = "scatter", mode = "markers", 
            stype = ~status_type, sauth = ~status_author, smsg = ~status_message, sperma = ~permalink_url) %>% 
       layout(xaxis = x, yaxis = y, title = paste("Memes from", input$memeFile), margin = m) 
     as.widget(p) %>% onRender(addHoverBehavior)
