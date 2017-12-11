@@ -25,7 +25,9 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(id = "tab",
                   tabPanel(title = "Scatter Plot", value = "scatter", plotlyOutput("memePlot"),
-                           textOutput("hover")),
+                           h4("Click on the dots to learn more about the Facebook Post."),
+                           p("However there are still errors, so check with the Plotly tag and the output here to verify the correct post."),
+                           uiOutput("hover")),
                   tabPanel(title = "Box Plot", value = "box", plotlyOutput("boxReaction")),
                   tabPanel(title = "Histogram Chart", value = "histogram", plotlyOutput("histPlot"))
       ))
@@ -95,9 +97,9 @@ server <- function(input, output) {
     
     omg <- memeData %>% filter_(yVal)
     #paste(event.data)
-    paste("Status Author:", omg$status_author, "\n Status Message:", omg$status_msg, "\nPerma link:",omg$permalink_url, "\n Number of Reactions(Y)", event.data[["y"]],
-          "\n X value:", event.data[["x"]])
-    #paste("Currently unable to get the right info")
+    HTML('<p>Status Author:',omg$status_author, '</p>', '<p>Status Message:', omg$status_msg, '</p>', 
+         '<p>X Value:', event.data[["x"]], '</p>','<p>Y Value:', event.data[["y"]], '</p>', 
+         '<a href="', omg$permalink_url,'">Link to post!</a>','<p>','</p>')
     
     #[subset(event.data, curveNumber == 0)$pointNumber + 1,]
   })
@@ -124,7 +126,7 @@ server <- function(input, output) {
     )
     
     
-    p <- plot_ly(uwMemes, x = ~get(input$memeXvar), y = ~get(input$memeYvar), color = ~status_type, type = "scatter", mode = "markers", 
+    p <- plot_ly(memeData, x = ~get(input$memeXvar), y = ~get(input$memeYvar), color = ~status_type, type = "scatter", mode = "markers", 
            stype = ~status_type, sauth = ~status_author, smsg = ~status_message, sperma = ~permalink_url, 
            text = ~paste("auth", status_author, "<br>msg", status_message, "<br>link", permalink_url), source = "pls") %>% 
            layout(xaxis = x, yaxis = y, title = paste("Memes from", input$memeFile), margin = m) 
