@@ -14,6 +14,24 @@ harvardMemes <- read.csv("data/harvardelitist1209_facebook_statuses.csv", string
 #harvardMemes <- head(harvardMemes)
 ##############################################################
 
+ui <- fluidPage(
+  titlePanel("Meme Research"),
+  h3("Data from Facebook groups were last scraped on 12-9-2017."),
+  sidebarLayout(
+    sidebarPanel(
+      uiOutput("tabUi")
+      
+    ),
+    mainPanel(
+      tabsetPanel(id = "tab",
+                  tabPanel(title = "Scatter Plot", value = "scatter", plotlyOutput("memePlot"),
+                           textOutput("hover")),
+                  tabPanel(title = "Box Plot", value = "box", plotlyOutput("boxReaction")),
+                  tabPanel(title = "Histogram Chart", value = "histogram", plotlyOutput("histPlot"))
+      ))
+  )
+)
+
 renderPlotly2 <- function (expr, env = parent.frame(), quoted = FALSE){
   if (!quoted) {
     expr <- substitute(expr)
@@ -25,8 +43,7 @@ addHoverBehavior <- "function(el, x){
 el.on('plotly_hover', function(data){
 var infotext = data.points.map(function(d){
 console.log(d)
-return (' Author: '+d.data.sauth[d.pointNumber]+' Message: '+d.data.smsg[d.pointNumber]+
-' Perma Link: '+ d.data.sperma[d.pointNumber]);
+return (d.data.smsg[d.pointNumber]);
 });
 console.log(infotext)
 Shiny.onInputChange('hover_data', infotext)
@@ -40,7 +57,7 @@ server <- function(input, output) {
         selectInput("memeFile", label = ("Select facebook meme group"), 
                     choices = list("UW Memes" = "uwMemes", "UC Memes" = "ucMemes", "Harvard Memes" = "harvardMemes")),
         sliderInput("memeReactionSlide", label = ("Range of Y Values:"), min = 0, 
-                    max = 12000, value = c(300, 800)),
+                    max = 12000, value = c(50, 800)),
         selectInput("memeXvar", label = ("Select X Variable:"), 
                     choices = list("Date" = 'status_published', "Number of Reactions" = 'num_reactions', "Number of Comments" = 'num_comments',
                                    "Number of Shares" = 'num_shares', "Number of Likes" = 'num_likes', "Number of Loves" = 'num_loves', "Number of Wows" = 'num_wows',
@@ -69,7 +86,20 @@ server <- function(input, output) {
   })
   
   output$hover <- renderText({
-    input$hover_data
+    memeData <- get(input$memeFile)
+    event.data <- event_data(event = "plotly_click", source = "pls")
+    if(is.null(event.data) == T) return(NULL)
+    yVal <- paste0(input$memeYvar, "==", event.data[["y"]])
+    #xPls <- event.data[["x"]]
+    #xVal <- paste0(input$memeXvar, "==", xPls)
+    
+    omg <- memeData %>% filter_(yVal)
+    #paste(event.data)
+    paste("Status Author:", omg$status_author, "\n Status Message:", omg$status_msg, "\nPerma link:",omg$permalink_url, "\n Number of Reactions(Y)", event.data[["y"]],
+          "\n X value:", event.data[["x"]])
+    #paste("Currently unable to get the right info")
+    
+    #[subset(event.data, curveNumber == 0)$pointNumber + 1,]
   })
 
 
@@ -93,11 +123,12 @@ server <- function(input, output) {
       t = 50
     )
     
-    p <- plot_ly(memeData, x = ~get(input$memeXvar), y = ~get(input$memeYvar), color = ~status_type, type = "scatter", mode = "markers", 
-           stype = ~status_type, sauth = ~status_author, smsg = ~status_message, sperma = ~permalink_url) %>% 
-      layout(xaxis = x, yaxis = y, title = paste("Memes from", input$memeFile), margin = m) 
-    as.widget(p) %>% onRender(addHoverBehavior)
     
+    p <- plot_ly(uwMemes, x = ~get(input$memeXvar), y = ~get(input$memeYvar), color = ~status_type, type = "scatter", mode = "markers", 
+           stype = ~status_type, sauth = ~status_author, smsg = ~status_message, sperma = ~permalink_url, 
+           text = ~paste("auth", status_author, "<br>msg", status_message, "<br>link", permalink_url), source = "pls") %>% 
+           layout(xaxis = x, yaxis = y, title = paste("Memes from", input$memeFile), margin = m) 
+    as.widget(p) %>% onRender(addHoverBehavior)
   })
   
   output$boxReaction <- renderPlotly({
@@ -133,23 +164,5 @@ server <- function(input, output) {
       layout(xaxis = x, yaxis = y, title = paste("Memes from", input$memeFile), margin = m) 
   })
 }
-
-ui <- fluidPage(
-  titlePanel("Meme Research"),
-  h3("Data from Facebook groups were last scrapped on 12-9-2017."),
-  sidebarLayout(
-    sidebarPanel(
-      uiOutput("tabUi")
-
-    ),
-    mainPanel(
-      tabsetPanel(id = "tab",
-        tabPanel(title = "Scatter Plot", value = "scatter", plotlyOutput("memePlot"),
-                 textOutput("hover")),
-        tabPanel(title = "Box Plot", value = "box", plotlyOutput("boxReaction")),
-        tabPanel(title = "Histogram Chart", value = "histogram", plotlyOutput("histPlot"))
-      ))
-  )
-)
 
 shinyApp(ui = ui, server = server)
