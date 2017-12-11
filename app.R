@@ -9,9 +9,9 @@ ucMemes <- read.csv("data/ucmemes1209_facebook_statuses.csv", stringsAsFactors =
 harvardMemes <- read.csv("data/harvardelitist1209_facebook_statuses.csv", stringsAsFactors = FALSE)
 
 ############## COMMENT OUT WHEN PUBLISHING ##################
-#ucMemes <- head(ucMemes)
-#uwMemes <- head(uwMemes)
-#harvardMemes <- head(harvardMemes)
+ucMemes <- head(ucMemes)
+uwMemes <- head(uwMemes)
+harvardMemes <- head(harvardMemes)
 ##############################################################
 
 ui <- fluidPage(
@@ -26,7 +26,9 @@ ui <- fluidPage(
       tabsetPanel(id = "tab",
                   tabPanel(title = "Scatter Plot", value = "scatter", plotlyOutput("memePlot"),
                            h4("Click on the dots to learn more about the Facebook Post."),
-                           p("However there are still errors, so check with the Plotly tag and the output here to verify the correct post."),
+                           p("However there are still errors, so check with the Plotly tag and the output here to verify the correct post. Also 
+                             give it a minute for the plot to load."),
+                           tags$li("Outputs array instead of single value"),
                            uiOutput("hover")),
                   tabPanel(title = "Box Plot", value = "box", plotlyOutput("boxReaction")),
                   tabPanel(title = "Histogram Chart", value = "histogram", plotlyOutput("histPlot"))
@@ -90,18 +92,27 @@ server <- function(input, output) {
   output$hover <- renderText({
     memeData <- get(input$memeFile)
     event.data <- event_data(event = "plotly_click", source = "pls")
-    if(is.null(event.data) == T) return(NULL)
-    yVal <- paste0(input$memeYvar, "==", event.data[["y"]])
-    #xPls <- event.data[["x"]]
-    #xVal <- paste0(input$memeXvar, "==", xPls)
     
-    omg <- memeData %>% filter_(yVal)
+    if (is.null(event.data)) "Click events appear here (double-click to clear)" else memeData %>% tibble::rownames_to_column() %>% filter(status_type ==event.data$curveNumber) %>% filter(row_number()==event.data$pointNumber+1)
+    # if(is.null(event.data) == T) return(NULL)
+    # filter(vs==d$curveNumber) %>% filter(row_number()==d$pointNumber+1)
+    # 
+    # yVal <- paste0(input$memeYvar, "==", event.data[["y"]])
+    # 
+    # if (input$memeXvar == "status_published") {
+    #   xVal <- paste("status_published", "==", as.character(event.data[["x"]]))
+    #   omg <- memeData %>% filter_(yVal)
+    # } else {
+    #   xVal <- paste0(input$memeXvar, "==", event.data[["x"]])
+    #   omg <- memeData %>% filter_(yVal) %>% filter_(xVal)
+    # }
+
+    #%>% filter_(xVal)
     #paste(event.data)
-    HTML('<p>Status Author:',omg$status_author, '</p>', '<p>Status Message:', omg$status_msg, '</p>', 
-         '<p>X Value:', event.data[["x"]], '</p>','<p>Y Value:', event.data[["y"]], '</p>', 
-         '<a href="', omg$permalink_url,'">Link to post!</a>','<p>','</p>')
     
-    #[subset(event.data, curveNumber == 0)$pointNumber + 1,]
+    HTML('<p>Status Author:',memeData$status_author[event.data$pointNumber+1], '</p>', '<p>Status Message:', memeData$status_message[event.data$pointNumber+1], '</p>', 
+         '<p>X Value:', event.data[["x"]], '</p>','<p>Y Value:', event.data[["y"]], '</p>', 
+         '<a href="', memeData$permalink_url[event.data$pointNumber+1],'">', memeData$permalink_url[event.data$pointNumber+1],'</a>','<p>','</p>')
   })
 
 
