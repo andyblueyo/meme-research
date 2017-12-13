@@ -110,9 +110,10 @@ server <- function(input, output) {
     #%>% filter_(xVal)
     #paste(event.data)
     
-    HTML('<p>Status Author:',memeData$status_author[event.data$pointNumber+1], '</p>', '<p>Status Message:', memeData$status_message[event.data$pointNumber+1], '</p>', 
-         '<p>X Value:', event.data[["x"]], '</p>','<p>Y Value:', event.data[["y"]], '</p>', 
-         '<a href="', memeData$permalink_url[event.data$pointNumber+1],'">', memeData$permalink_url[event.data$pointNumber+1],'</a>','<p>','</p>')
+    # HTML('<p>Status Author:',memeData$status_author[event.data$pointNumber+1], '</p>', '<p>Status Message:', memeData$status_message[event.data$pointNumber+1], '</p>', 
+    #      '<p>X Value:', event.data[["x"]], '</p>','<p>Y Value:', event.data[["y"]], '</p>', 
+    #      '<a href="', memeData$permalink_url[event.data$pointNumber+1],'">', memeData$permalink_url[event.data$pointNumber+1],'</a>','<p>','</p>')
+    paste(memeData)
   })
 
 
