@@ -93,7 +93,11 @@ server <- function(input, output) {
     memeData <- get(input$memeFile)
     event.data <- event_data(event = "plotly_click", source = "pls")
     
-    if (is.null(event.data)) "Click events appear here (double-click to clear)" else memeData %>% tibble::rownames_to_column() %>% filter(status_type ==event.data$curveNumber) %>% filter(row_number()==event.data$pointNumber+1)
+    if (is.null(event.data)) {
+        return(NULL)
+      } else { 
+         memeData %>% tibble::rownames_to_column() %>% filter(row_number()==event.data$pointNumber+1) 
+      }
     # if(is.null(event.data) == T) return(NULL)
     # filter(vs==d$curveNumber) %>% filter(row_number()==d$pointNumber+1)
     # 
@@ -110,10 +114,10 @@ server <- function(input, output) {
     #%>% filter_(xVal)
     #paste(event.data)
     
-    # HTML('<p>Status Author:',memeData$status_author[event.data$pointNumber+1], '</p>', '<p>Status Message:', memeData$status_message[event.data$pointNumber+1], '</p>', 
-    #      '<p>X Value:', event.data[["x"]], '</p>','<p>Y Value:', event.data[["y"]], '</p>', 
-    #      '<a href="', memeData$permalink_url[event.data$pointNumber+1],'">', memeData$permalink_url[event.data$pointNumber+1],'</a>','<p>','</p>')
-    paste(memeData)
+    HTML('<p>Status Author:',memeData$status_author, '</p>', '<p>Status Message:', memeData$status_message, '</p>',
+         '<p>X Value:', event.data[["x"]], '</p>','<p>Y Value:', event.data[["y"]], '</p>',
+         '<a href="', memeData$permalink_url,'">', memeData$permalink_url,'</a>','<p>','</p>')
+   # paste(memeData, "omg ", event.data$pointNumber, event.data$curveNumber)
   })
 
 
