@@ -5,8 +5,8 @@ account: hellachen
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 247187
-bundleId: 1127933
+bundleId: 1136378
 url: https://hellachen.shinyapps.io/meme-research2/
-when: 1512994594.66697
+when: 1513325258.73204
 asMultiple: FALSE
 asStatic: FALSE

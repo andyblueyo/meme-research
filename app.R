@@ -9,9 +9,9 @@ ucMemes <- read.csv("data/ucmemes1209_facebook_statuses.csv", stringsAsFactors =
 harvardMemes <- read.csv("data/harvardelitist1209_facebook_statuses.csv", stringsAsFactors = FALSE)
 
 ############## COMMENT OUT WHEN PUBLISHING ##################
-ucMemes <- head(ucMemes)
-uwMemes <- head(uwMemes)
-harvardMemes <- head(harvardMemes)
+#ucMemes <- head(ucMemes)
+#uwMemes <- head(uwMemes)
+#harvardMemes <- head(harvardMemes)
 ##############################################################
 
 ui <- fluidPage(
@@ -26,9 +26,6 @@ ui <- fluidPage(
       tabsetPanel(id = "tab",
                   tabPanel(title = "Scatter Plot", value = "scatter", plotlyOutput("memePlot"),
                            h4("Click on the dots to learn more about the Facebook Post."),
-                           p("However there are still errors, so check with the Plotly tag and the output here to verify the correct post. Also 
-                             give it a minute for the plot to load."),
-                           tags$li("Outputs array instead of single value"),
                            uiOutput("hover")),
                   tabPanel(title = "Box Plot", value = "box", plotlyOutput("boxReaction")),
                   tabPanel(title = "Histogram Chart", value = "histogram", plotlyOutput("histPlot"))
@@ -44,7 +41,7 @@ server <- function(input, output) {
         selectInput("memeFile", label = ("Select facebook meme group"), 
                     choices = list("UW Memes" = "uwMemes", "UC Memes" = "ucMemes", "Harvard Memes" = "harvardMemes")),
         sliderInput("memeReactionSlide", label = ("Range of Y Values:"), min = 0, 
-                    max = 12000, value = c(50, 800)),
+                    max = 12000, value = c(50, 5800)),
         selectInput("memeXvar", label = ("Select X Variable:"), 
                     choices = list("Date" = 'status_published', "Number of Reactions" = 'num_reactions', "Number of Comments" = 'num_comments',
                                    "Number of Shares" = 'num_shares', "Number of Likes" = 'num_likes', "Number of Loves" = 'num_loves', "Number of Wows" = 'num_wows',
@@ -84,6 +81,7 @@ server <- function(input, output) {
         HTML('<p>Status Author:',memeData$status_author, '</p>', '<p>Status Message:', memeData$status_message, '</p>',
              '<p>X Value:', event.data[["x"]], '</p>','<p>Y Value:', event.data[["y"]], '</p>',
              '<a href="', memeData$permalink_url,'">', memeData$permalink_url,'</a>','<p>','</p>')
+        #print(memeData)
       }
   })
 
