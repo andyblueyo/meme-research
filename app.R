@@ -36,23 +36,6 @@ ui <- fluidPage(
   )
 )
 
-renderPlotly2 <- function (expr, env = parent.frame(), quoted = FALSE){
-  if (!quoted) {
-    expr <- substitute(expr)
-  }
-  shinyRenderWidget(expr, plotlyOutput, env, quoted = TRUE)
-}
-
-addHoverBehavior <- "function(el, x){
-el.on('plotly_hover', function(data){
-var infotext = data.points.map(function(d){
-console.log(d)
-return (d.data.smsg[d.pointNumber]);
-});
-console.log(infotext)
-Shiny.onInputChange('hover_data', infotext)
-})
-}"
 
 server <- function(input, output) {
   output$tabUi <- renderUI({
@@ -94,34 +77,18 @@ server <- function(input, output) {
     event.data <- event_data(event = "plotly_click", source = "pls")
     
     if (is.null(event.data)) {
-        return(NULL)
+      print("Click to see the meme to the point.")
       } else { 
-         memeData %>% tibble::rownames_to_column() %>% filter(row_number()==event.data$pointNumber+1) 
-      }
-    # if(is.null(event.data) == T) return(NULL)
-    # filter(vs==d$curveNumber) %>% filter(row_number()==d$pointNumber+1)
-    # 
-    # yVal <- paste0(input$memeYvar, "==", event.data[["y"]])
-    # 
-    # if (input$memeXvar == "status_published") {
-    #   xVal <- paste("status_published", "==", as.character(event.data[["x"]]))
-    #   omg <- memeData %>% filter_(yVal)
-    # } else {
-    #   xVal <- paste0(input$memeXvar, "==", event.data[["x"]])
-    #   omg <- memeData %>% filter_(yVal) %>% filter_(xVal)
-    # }
+        memeData <- memeData %>% filter(permalink_url == event.data$key)
 
-    #%>% filter_(xVal)
-    #paste(event.data)
-    
-    HTML('<p>Status Author:',memeData$status_author, '</p>', '<p>Status Message:', memeData$status_message, '</p>',
-         '<p>X Value:', event.data[["x"]], '</p>','<p>Y Value:', event.data[["y"]], '</p>',
-         '<a href="', memeData$permalink_url,'">', memeData$permalink_url,'</a>','<p>','</p>')
-   # paste(memeData, "omg ", event.data$pointNumber, event.data$curveNumber)
+        HTML('<p>Status Author:',memeData$status_author, '</p>', '<p>Status Message:', memeData$status_message, '</p>',
+             '<p>X Value:', event.data[["x"]], '</p>','<p>Y Value:', event.data[["y"]], '</p>',
+             '<a href="', memeData$permalink_url,'">', memeData$permalink_url,'</a>','<p>','</p>')
+      }
   })
 
 
-  output$memePlot <- renderPlotly2({
+  output$memePlot <- renderPlotly({
     maxYVal <- paste0(input$memeYvar, ">=", input$memeReactionSlide[1])
     minYVal <- paste0(input$memeYvar, "<=", input$memeReactionSlide[2])
     
@@ -142,11 +109,9 @@ server <- function(input, output) {
     )
     
     
-    p <- plot_ly(memeData, x = ~get(input$memeXvar), y = ~get(input$memeYvar), color = ~status_type, type = "scatter", mode = "markers", 
-           stype = ~status_type, sauth = ~status_author, smsg = ~status_message, sperma = ~permalink_url, 
-           text = ~paste("auth", status_author, "<br>msg", status_message, "<br>link", permalink_url), source = "pls") %>% 
+    plot_ly(memeData, x = ~get(input$memeXvar), y = ~get(input$memeYvar), color = ~status_type, type = "scatter", mode = "markers", 
+           text = ~paste("auth", status_author, "<br>msg", status_message, "<br>link", permalink_url), key = ~permalink_url, source = "pls") %>% 
            layout(xaxis = x, yaxis = y, title = paste("Memes from", input$memeFile), margin = m) 
-    as.widget(p) %>% onRender(addHoverBehavior)
   })
   
   output$boxReaction <- renderPlotly({
