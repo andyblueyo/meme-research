@@ -9,27 +9,61 @@ ucMemes <- read.csv("data/ucmemes1209_facebook_statuses.csv", stringsAsFactors =
 harvardMemes <- read.csv("data/harvardelitist1209_facebook_statuses.csv", stringsAsFactors = FALSE)
 
 ############## COMMENT OUT WHEN PUBLISHING ##################
-#ucMemes <- head(ucMemes)
-#uwMemes <- head(uwMemes)
-#harvardMemes <- head(harvardMemes)
+ucMemes <- head(ucMemes)
+uwMemes <- head(uwMemes)
+harvardMemes <- head(harvardMemes)
 ##############################################################
 
 ui <- fluidPage(
-  titlePanel("Meme Research"),
-  h3("Data from Facebook groups were last scraped on 12-9-2017."),
-  sidebarLayout(
-    sidebarPanel(
-      uiOutput("tabUi")
-      
-    ),
-    mainPanel(
-      tabsetPanel(id = "tab",
-                  tabPanel(title = "Scatter Plot", value = "scatter", plotlyOutput("memePlot"),
-                           h4("Click on the dots to learn more about the Facebook Post."),
-                           uiOutput("hover")),
-                  tabPanel(title = "Box Plot", value = "box", plotlyOutput("boxReaction")),
-                  tabPanel(title = "Histogram Chart", value = "histogram", plotlyOutput("histPlot"))
-      ))
+  navbarPage("Meme Research",
+             tabPanel(title = "Scatter Plot", value = "scatter",
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectInput("memeFile", label = ("Select facebook meme group"), 
+                                      choices = list("UW Memes" = "uwMemes", "UC Memes" = "ucMemes", "Harvard Memes" = "harvardMemes")),
+                          sliderInput("memeReactionSlide", label = ("Range of Y Values:"), min = 0, 
+                                      max = 12000, value = c(50, 5800)),
+                          selectInput("memeXvar", label = ("Select X Variable:"), 
+                                      choices = list("Date" = 'status_published', "Number of Reactions" = 'num_reactions', "Number of Comments" = 'num_comments',
+                                                     "Number of Shares" = 'num_shares', "Number of Likes" = 'num_likes', "Number of Loves" = 'num_loves', "Number of Wows" = 'num_wows',
+                                                     "Number of Hahas" = 'num_hahas', "Number of Sads" = 'num_sads', "Number of Angrys" = 'num_angrys'),
+                                      selected = "status_published"),
+                          selectInput("memeYvar", label = ("Select Y Variable:"), 
+                                      choices = list("Number of Reactions" = 'num_reactions', "Number of Comments" = 'num_comments',
+                                                     "Number of Shares" = 'num_shares', "Number of Likes" = 'num_likes', "Number of Loves" = 'num_loves', "Number of Wows" = 'num_wows',
+                                                     "Number of Hahas" = 'num_hahas', "Number of Sads" = 'num_sads', "Number of Angrys" = 'num_angrys'),
+                                      selected = "num_reactions")
+                        ),
+                        mainPanel(
+                          h3("Data from Facebook groups were last scraped on 12-9-2017."),
+                          plotlyOutput("memePlot"),
+                          h4("Click on the dots to learn more about the Facebook Post."),
+                          uiOutput("hover")
+                        )
+                      )),
+             tabPanel(title = "Box Plot", value = "box", 
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectInput("memeFile", label = ("Select facebook meme group"), 
+                                      choices = list("UW Memes" = "uwMemes", "UC Memes" = "ucMemes", "Harvard Memes" = "harvardMemes"))
+                        ),
+                        mainPanel(
+                          plotlyOutput("boxReaction")
+                        )
+                      )),
+             tabPanel(title = "Histogram Chart", value = "histogram",
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectInput("memeFile", label = ("Select facebook meme group"), 
+                                      choices = list("UW Memes" = "uwMemes", "UC Memes" = "ucMemes", "Harvard Memes" = "harvardMemes")),
+                          selectInput("histCount", label = "Select histogram count", 
+                                      choices = list("Post Author" = 'status_author', "Date" = 'status_published', "Media Type" = 'status_type'))
+                        ),
+                        mainPanel(
+                          plotlyOutput("histPlot")
+                        )
+                      ))
+    
   )
 )
 
